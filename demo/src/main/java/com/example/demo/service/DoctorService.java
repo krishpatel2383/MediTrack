@@ -15,6 +15,9 @@ import com.example.demo.repository.DoctorRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class DoctorService {
 
@@ -25,14 +28,19 @@ public class DoctorService {
 	private DoctorAvailabilityRepository doctorAvailabilityRepository;
 
 	@Transactional
-	public void registerDoctor(DoctorRegistrationRequest doctorRegistrationRequest) throws JsonProcessingException {
-		// You can add validation and additional logic here
-		doctorRepository.save(doctorRegistrationRequest.getDoctor());
+	public Doctor registerDoctor(DoctorRegistrationRequest doctorRegistrationRequest) throws JsonProcessingException {
+
+		Optional<Doctor> existingdoctor = doctorRepository
+				.findByEmail(doctorRegistrationRequest.getDoctor().getEmail());
+		if (existingdoctor.isPresent()) {
+			throw new EntityExistsException("doctor with this email already exist.");
+		}
+		Doctor doctor = doctorRepository.save(doctorRegistrationRequest.getDoctor());
 
 		DoctorAvailability doctorAvailability = new DoctorAvailability();
 		doctorAvailability.setDoctor(doctorRegistrationRequest.getDoctor());
 		doctorAvailability.setTimeSlot(doctorRegistrationRequest.getTimeSlot());
-		// serializing to json
+
 		List<String> workingDays = doctorRegistrationRequest.getWorkingDays();
 		ObjectMapper objectMapper = new ObjectMapper();
 		String workingDaysJson = objectMapper.writeValueAsString(workingDays);
@@ -40,7 +48,7 @@ public class DoctorService {
 		doctorAvailability.setWorkingDays(workingDaysJson);
 
 		doctorAvailabilityRepository.save(doctorAvailability);
-
+		return doctor;
 	}
 
 	@Transactional
@@ -49,8 +57,6 @@ public class DoctorService {
 
 		if (optionalDoctor.isPresent()) {
 			Doctor doctor = optionalDoctor.get();
-			// Compare the hashed password (you should use a secure comparison method)
-			// For simplicity, we'll assume the password is already hashed
 			if (doctor.getPassword().equals(password)) {
 				return Optional.of(doctor);
 			}
@@ -65,16 +71,42 @@ public class DoctorService {
 	}
 
 	@Transactional(readOnly = true)
-	public Optional<Doctor> getDoctorById(Long id) {
+	public Optional<Doctor> getDoctorById(Integer id) {
 		return doctorRepository.findById(id);
 	}
 
 	@Transactional
-	public void deleteDoctor(Long id) {
+	public void deleteDoctor(Integer id) {
 		doctorRepository.deleteById(id);
 	}
 
-	// Other methods for doctor-related operations
+	public DoctorRegistrationRequest updateDoctor(DoctorRegistrationRequest doctorRegistrationRequest) {
 
-	// ...
+		Optional<Doctor> currentDoctor = doctorRepository.findById(doctorRegistrationRequest.getDoctor().getId());
+		if (currentDoctor.isEmpty()) {
+			throw new EntityNotFoundException("doctor does not exist");
+		}
+		Doctor doctor = currentDoctor.get();
+		doctor.setEmail(doctorRegistrationRequest.getDoctor().getEmail());
+		doctor.setName(doctorRegistrationRequest.getDoctor().getEmail());
+		doctor.setPassword(doctorRegistrationRequest.getDoctor().getPassword());
+		doctor.setSpecialization(doctorRegistrationRequest.getDoctor().getSpecialization());
+		doctorRepository.save(doctorRegistrationRequest.getDoctor());
+
+		DoctorAvailability doctorAvailability = doctorAvailabilityRepository
+				.findByDoctorId(doctorRegistrationRequest.getDoctor().getId());
+		doctorAvailability.setTimeSlot(doctorRegistrationRequest.getTimeSlot());
+		ObjectMapper objectMapper = new ObjectMapper();
+		try {
+			String workingDaysJson = objectMapper.writeValueAsString(doctorRegistrationRequest.getWorkingDays());
+			doctorAvailability.setWorkingDays(workingDaysJson);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		doctorAvailabilityRepository.save(doctorAvailability);
+
+		return doctorRegistrationRequest;
+	}
+
 }

@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.demo.model.Appointment;
 import com.example.demo.repository.AppointmentRepository;
 
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class AppointmentService {
 
@@ -39,5 +41,20 @@ public class AppointmentService {
 
 	public List<Appointment> getAppointmentsByDoctorIdAndStatus(int doctorId, String status) {
 		return appointmentRepository.findByDoctorIdAndStatus(doctorId, status);
+	}
+
+	public Appointment updateAppointment(Appointment updatedAppointment) {
+		Optional<Appointment> currentOptional = appointmentRepository.findById(updatedAppointment.getId());
+		if (currentOptional.isEmpty()) {
+			throw new EntityNotFoundException("appointment does not exist");
+		}
+		Appointment currentAppointment = currentOptional.get();
+		currentAppointment.setAppointmentDatetime(updatedAppointment.getAppointmentDatetime());
+		currentAppointment.setComments(updatedAppointment.getComments());
+		currentAppointment.setDoctorId(updatedAppointment.getDoctorId());
+		currentAppointment.setPatientId(updatedAppointment.getPatientId());
+		currentAppointment.setStatus(updatedAppointment.getStatus());
+
+		return appointmentRepository.save(currentAppointment);
 	}
 }

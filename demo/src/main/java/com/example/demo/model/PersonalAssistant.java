@@ -2,17 +2,19 @@ package com.example.demo.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToOne;
 
 @Entity
-@Table(name = "receptionists")
-public class Receptionist {
+public class PersonalAssistant {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@Column(name = "name")
 	private String name;
@@ -26,25 +28,15 @@ public class Receptionist {
 	@Column(name = "phone")
 	private String phone;
 
-	public Receptionist(Long id, String name, String email, String password, String phone) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.email = email;
-		this.password = password;
-		this.phone = phone;
-	}
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "doctor_id", referencedColumnName = "id")
+	private Doctor doctor;
 
-	public Receptionist() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
-
-	public Long getId() {
+	public int getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(int id) {
 		this.id = id;
 	}
 
@@ -79,4 +71,28 @@ public class Receptionist {
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
+
+	public Doctor getDoctor() {
+		return doctor;
+	}
+
+	public void setDoctor(Doctor doctor) {
+		this.doctor = doctor;
+	}
+
+	public PersonalAssistant(int id, String name, String email, String password, String phone, Doctor doctor) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.email = email;
+		this.password = password;
+		this.phone = phone;
+		this.doctor = doctor;
+	}
+
+	public PersonalAssistant() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
 }

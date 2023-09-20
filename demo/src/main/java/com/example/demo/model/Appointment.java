@@ -1,5 +1,7 @@
 package com.example.demo.model;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
@@ -14,16 +16,13 @@ import jakarta.persistence.Table;
 public class Appointment {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private int id;
 
 	@Column(name = "patient_id")
-	private Long patientId;
+	private int patientId;
 
 	@Column(name = "doctor_id")
-	private Long doctorId;
-
-	@Column(name = "receptionist_id")
-	private Long receptionistId;
+	private int doctorId;
 
 	@Column(name = "appointment_datetime")
 	private LocalDateTime appointmentDatetime;
@@ -34,20 +33,11 @@ public class Appointment {
 	@Column(name = "comments")
 	private String comments;
 
-	// future scope
-//	@Column(name = "time_slot")
-//	private LocalTime timeSlot;
+	@Column(name = "appointment_timestamp")
+	private Timestamp appointmentTimestamp;
 
-	public Appointment(Long id, Long patientId, Long doctorId, Long receptionistId, LocalDateTime appointmentDatetime,
-			String status, String comments) {
-		super();
-		this.id = id;
-		this.patientId = patientId;
-		this.doctorId = doctorId;
-		this.receptionistId = receptionistId;
-		this.appointmentDatetime = appointmentDatetime;
-		this.status = status;
-		this.comments = comments;
+	public int getId() {
+		return id;
 	}
 
 	public Appointment() {
@@ -55,36 +45,46 @@ public class Appointment {
 		// TODO Auto-generated constructor stub
 	}
 
-	public Long getId() {
-		return id;
+	public Appointment(int id, int patientId, int doctorId, LocalDateTime appointmentDatetime, String status,
+			String comments, Timestamp appointmentTimestamp) {
+		super();
+		this.id = id;
+		this.patientId = patientId;
+		this.doctorId = doctorId;
+		this.appointmentDatetime = appointmentDatetime;
+		this.status = status;
+		this.comments = comments;
+		this.appointmentTimestamp = appointmentTimestamp;
 	}
 
-	public void setId(Long id) {
+	public String getAppointmentTimestamp() {
+//		return appointmentTimestamp; 
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		return dateFormat.format(appointmentTimestamp);
+	}
+
+	public void setAppointmentTimestamp(Timestamp appointmentTimestamp) {
+		this.appointmentTimestamp = appointmentTimestamp;
+	}
+
+	public void setId(int id) {
 		this.id = id;
 	}
 
-	public Long getPatientId() {
+	public int getPatientId() {
 		return patientId;
 	}
 
-	public void setPatientId(Long patientId) {
+	public void setPatientId(int patientId) {
 		this.patientId = patientId;
 	}
 
-	public Long getDoctorId() {
+	public int getDoctorId() {
 		return doctorId;
 	}
 
-	public void setDoctorId(Long doctorId) {
+	public void setDoctorId(int doctorId) {
 		this.doctorId = doctorId;
-	}
-
-	public Long getReceptionistId() {
-		return receptionistId;
-	}
-
-	public void setReceptionistId(Long receptionistId) {
-		this.receptionistId = receptionistId;
 	}
 
 	public LocalDateTime getAppointmentDatetime() {

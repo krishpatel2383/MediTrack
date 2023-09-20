@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,6 +23,9 @@ import com.example.demo.repository.DoctorAvailabilityRepository;
 import com.example.demo.repository.DoctorRepository;
 import com.example.demo.repository.PatientRepository;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+
 @Service
 public class PatientService {
 
@@ -37,8 +41,48 @@ public class PatientService {
 	@Autowired
 	private DoctorAvailabilityRepository doctorAvailabilityRepository;
 
+	@Transactional(readOnly = true)
+	public List<Patient> getAllPatients() {
+		return patientRepository.findAll();
+	}
+
+	@Transactional(readOnly = true)
+	public Optional<Patient> getPatientById(int patientId) {
+		return patientRepository.findById(patientId);
+	}
+
+	@Transactional
+	public Patient updatePatient(Patient updatedPatient) {
+		Optional<Patient> currentPatient = patientRepository.findById(updatedPatient.getId());
+		if (currentPatient.isEmpty()) {
+			throw new EntityNotFoundException("patient does not exist");
+		}
+		Patient patient = currentPatient.get();
+		patient.setEmail(updatedPatient.getEmail());
+		patient.setAddress(updatedPatient.getAddress());
+		patient.setName(updatedPatient.getName());
+		patient.setPassword(updatedPatient.getPassword());
+		patient.setPhone(updatedPatient.getPhone());
+
+		return patientRepository.save(updatedPatient);
+	}
+
+	@Transactional
+	public void deletePatient(int patientId) {
+		try {
+			appointmentRepository.deleteAllByPatientId(patientId);
+			patientRepository.deleteById(patientId);
+		} catch (EntityNotFoundException e) {
+			throw new EntityNotFoundException("Patient with ID " + patientId + " not found");
+		}
+	}
+
 	@Transactional
 	public Patient registerPatient(Patient patient) {
+		Optional<Patient> existingpatient = patientRepository.findByEmail(patient.getEmail());
+		if (existingpatient.isPresent()) {
+			throw new EntityExistsException("patient with this email already exist.");
+		}
 		return patientRepository.save(patient);
 	}
 
@@ -48,8 +92,6 @@ public class PatientService {
 
 		if (optionalPatient.isPresent()) {
 			Patient patient = optionalPatient.get();
-			// Compare the hashed password (you should use a secure comparison method)
-			// For simplicity, we'll assume the password is already hashed
 			if (patient.getPassword().equals(password)) {
 				return Optional.of(patient);
 			}
@@ -60,8 +102,6 @@ public class PatientService {
 
 	@Transactional
 	public Appointment requestAppointment(Appointment appointment) throws NotFoundException {
-		// Check if the requested appointment date and time are available for the
-		// selected doctor
 		Doctor doctor = doctorRepository.findById(appointment.getDoctorId()).orElseThrow(() -> new NotFoundException());
 
 		if (!isAppointmentSlotAvailable(doctor, appointment.getAppointmentDatetime())) {
@@ -72,9 +112,9 @@ public class PatientService {
 		appointment2.setPatientId(appointment.getPatientId());
 		appointment2.setDoctorId(appointment.getDoctorId());
 		appointment2.setAppointmentDatetime(appointment.getAppointmentDatetime());
-		appointment2.setReceptionistId(appointment.getReceptionistId());
 		appointment2.setStatus("Scheduled");
-
+		appointment2.setComments(appointment.getComments());
+		appointment2.setAppointmentTimestamp(new Timestamp(System.currentTimeMillis()));
 		appointmentRepository.save(appointment2);
 
 		return appointment2;
@@ -117,7 +157,5 @@ public class PatientService {
 		}
 		return true;
 	}
-
-	// ... (other methods)
 
 }

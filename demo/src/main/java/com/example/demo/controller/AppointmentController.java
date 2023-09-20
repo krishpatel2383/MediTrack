@@ -9,11 +9,15 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Appointment;
 import com.example.demo.service.AppointmentService;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @RestController
 @RequestMapping("/api/appointments")
@@ -21,12 +25,6 @@ public class AppointmentController {
 
 	@Autowired
 	private AppointmentService appointmentService;
-
-//	@PostMapping("/create")
-//	public ResponseEntity<Appointment> createAppointment(@RequestBody Appointment appointment) {
-//		Appointment createdAppointment = appointmentService.createAppointment(appointment);
-//		return new ResponseEntity<>(createdAppointment, HttpStatus.CREATED);
-//	}
 
 	@GetMapping("/patient/{patientId}")
 	public ResponseEntity<List<Appointment>> getAppointmentsByPatientId(@PathVariable int patientId) {
@@ -44,7 +42,7 @@ public class AppointmentController {
 		}
 	}
 
-	@DeleteMapping("/{appointmentId}")
+	@DeleteMapping("/delete/{appointmentId}")
 	public ResponseEntity<Void> deleteAppointment(@PathVariable int appointmentId) {
 		appointmentService.deleteAppointment(appointmentId);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -52,8 +50,18 @@ public class AppointmentController {
 
 	@GetMapping("/doctor/{doctorId}/scheduled")
 	public ResponseEntity<List<Appointment>> getAppointmentsByDoctorIdAndStatus(@PathVariable int doctorId) {
-		String status = "Scheduled"; // Define the status you want to filter by
+		String status = "Scheduled";
 		List<Appointment> appointments = appointmentService.getAppointmentsByDoctorIdAndStatus(doctorId, status);
 		return new ResponseEntity<>(appointments, HttpStatus.OK);
+	}
+
+	@PutMapping("/update")
+	public ResponseEntity<?> updateAppointment(@RequestBody Appointment appointment) {
+		try {
+			Appointment updatedAppointment = appointmentService.updateAppointment(appointment);
+			return ResponseEntity.ok(updatedAppointment);
+		} catch (EntityNotFoundException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+		}
 	}
 }

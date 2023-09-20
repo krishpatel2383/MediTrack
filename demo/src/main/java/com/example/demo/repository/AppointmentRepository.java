@@ -11,5 +11,7 @@ import com.example.demo.model.Appointment;
 public interface AppointmentRepository extends JpaRepository<Appointment, Integer> {
 	List<Appointment> findByPatientId(int patientId);
 
+	void deleteAllByPatientId(int patientId);
+
 	List<Appointment> findByDoctorIdAndStatus(Integer doctorId, String status);
 }

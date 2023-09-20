@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +20,9 @@ import com.example.demo.model.DoctorRegistrationRequest;
 import com.example.demo.service.DoctorService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import jakarta.persistence.EntityExistsException;
+import jakarta.persistence.EntityNotFoundException;
+
 @RestController
 @RequestMapping("/api/doctors")
 public class DoctorController {
@@ -27,11 +31,15 @@ public class DoctorController {
 	private DoctorService doctorService;
 
 	@PostMapping("/register")
-	public ResponseEntity<Void> registerDoctor(@RequestBody DoctorRegistrationRequest doctorRegistrationRequest)
+	public ResponseEntity<?> registerDoctor(@RequestBody DoctorRegistrationRequest doctorRegistrationRequest)
 			throws JsonProcessingException {
-//		Doctor registeredDoctor = doctorService.registerDoctor(doctorRegistrationRequest);
-		doctorService.registerDoctor(doctorRegistrationRequest);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		try {
+			Doctor doctor = doctorService.registerDoctor(doctorRegistrationRequest);
+			return new ResponseEntity<>(doctor, HttpStatus.CREATED);
+
+		} catch (EntityExistsException e) {
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+		}
 	}
 
 	@PostMapping("/login")
@@ -51,19 +59,33 @@ public class DoctorController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<Doctor> getDoctorById(@PathVariable Long id) {
+	public ResponseEntity<?> getDoctorById(@PathVariable Integer id) {
 		Optional<Doctor> doctor = doctorService.getDoctorById(id);
 		if (doctor.isPresent()) {
 			return new ResponseEntity<>(doctor.get(), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("invalid credentials", HttpStatus.NOT_FOUND);
 		}
 	}
 
-	@DeleteMapping("/{id}")
-	public ResponseEntity<Void> deleteDoctor(@PathVariable Long id) {
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<Void> deleteDoctor(@PathVariable Integer id) {
 		doctorService.deleteDoctor(id);
 		return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+	}
+
+	@PutMapping("/update")
+	public ResponseEntity<?> updateDotor(@RequestBody DoctorRegistrationRequest doctorRegistrationRequest) {
+		try {
+			DoctorRegistrationRequest updateddoctorRegistrationRequest = doctorService
+					.updateDoctor(doctorRegistrationRequest);
+			return new ResponseEntity<>(updateddoctorRegistrationRequest, HttpStatus.OK);
+
+		} catch (EntityNotFoundException e) {
+			// TODO: handle exception
+			return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+
+		}
 	}
 
 }
