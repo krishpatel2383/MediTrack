@@ -14,4 +14,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Intege
 	void deleteAllByPatientId(int patientId);
 
 	List<Appointment> findByDoctorIdAndStatus(Integer doctorId, String status);
+
+	List<Appointment> findByDoctorId(int doctorId);
 }

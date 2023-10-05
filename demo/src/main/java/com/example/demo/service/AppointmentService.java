@@ -43,6 +43,10 @@ public class AppointmentService {
 		return appointmentRepository.findByDoctorIdAndStatus(doctorId, status);
 	}
 
+	public List<Appointment> getAppointmentsByDoctorId(int doctorId) {
+		return appointmentRepository.findByDoctorId(doctorId);
+	}
+
 	public Appointment updateAppointment(Appointment updatedAppointment) {
 		Optional<Appointment> currentOptional = appointmentRepository.findById(updatedAppointment.getId());
 		if (currentOptional.isEmpty()) {

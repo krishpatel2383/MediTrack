@@ -23,23 +23,43 @@ public class DoctorAvailability {
 	@JoinColumn(name = "doctor_id", referencedColumnName = "id")
 	private Doctor doctor;
 
-	@Column(name = "time_slot", columnDefinition = "DATETIME", nullable = false)
-	private LocalTime timeSlot;
+	@Column(name = "start_time", columnDefinition = "TIME", nullable = false)
+	private LocalTime startTime;
+
+	@Column(name = "end_time", columnDefinition = "TIME", nullable = false)
+	private LocalTime endTime;
 
 	@Column(name = "working_days", columnDefinition = "JSON", nullable = false)
 	private String workingDays;
+
+	public DoctorAvailability(int id, Doctor doctor, LocalTime startTime, LocalTime endTime, String workingDays) {
+		super();
+		this.id = id;
+		this.doctor = doctor;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.workingDays = workingDays;
+	}
 
 	public DoctorAvailability() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public DoctorAvailability(int id, Doctor doctor, LocalTime timeSlot, String workingDays) {
-		super();
-		this.id = id;
-		this.doctor = doctor;
-		this.timeSlot = timeSlot;
-		this.workingDays = workingDays;
+	public LocalTime getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(LocalTime startTime) {
+		this.startTime = startTime;
+	}
+
+	public LocalTime getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(LocalTime endTime) {
+		this.endTime = endTime;
 	}
 
 	public int getId() {
@@ -56,14 +76,6 @@ public class DoctorAvailability {
 
 	public void setDoctor(Doctor doctor) {
 		this.doctor = doctor;
-	}
-
-	public LocalTime getTimeSlot() {
-		return timeSlot;
-	}
-
-	public void setTimeSlot(LocalTime timeSlot) {
-		this.timeSlot = timeSlot;
 	}
 
 	public String getWorkingDays() {

@@ -141,11 +141,13 @@ public class PatientService {
 		String workingDays = doctorAvailability.getWorkingDays();
 
 		System.out.println("available days:" + workingDays);
-		System.out.println("available time:" + doctorAvailability.getTimeSlot());
+		System.out.println(
+				"available time:" + doctorAvailability.getStartTime() + " to " + doctorAvailability.getEndTime());
 
-		if (!workingDays.contains(appointmentDay))
+		if (!workingDays.contains(appointmentDay) || appointmentDateTime.isBefore(LocalDateTime.now()))
 			return false;
-		if (!appointmenTime.isBefore(doctorAvailability.getTimeSlot()))
+		if (appointmenTime.isBefore(doctorAvailability.getStartTime())
+				|| appointmenTime.isAfter(doctorAvailability.getEndTime()))
 			return false;
 
 		// 2. check if the slot is available

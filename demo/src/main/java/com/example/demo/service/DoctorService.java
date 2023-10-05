@@ -39,7 +39,8 @@ public class DoctorService {
 
 		DoctorAvailability doctorAvailability = new DoctorAvailability();
 		doctorAvailability.setDoctor(doctorRegistrationRequest.getDoctor());
-		doctorAvailability.setTimeSlot(doctorRegistrationRequest.getTimeSlot());
+		doctorAvailability.setStartTime(doctorRegistrationRequest.getStartTime());
+		doctorAvailability.setEndTime(doctorRegistrationRequest.getEndTime());
 
 		List<String> workingDays = doctorRegistrationRequest.getWorkingDays();
 		ObjectMapper objectMapper = new ObjectMapper();
@@ -95,7 +96,8 @@ public class DoctorService {
 
 		DoctorAvailability doctorAvailability = doctorAvailabilityRepository
 				.findByDoctorId(doctorRegistrationRequest.getDoctor().getId());
-		doctorAvailability.setTimeSlot(doctorRegistrationRequest.getTimeSlot());
+		doctorAvailability.setStartTime(doctorRegistrationRequest.getStartTime());
+		doctorAvailability.setEndTime(doctorRegistrationRequest.getEndTime());
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
 			String workingDaysJson = objectMapper.writeValueAsString(doctorRegistrationRequest.getWorkingDays());

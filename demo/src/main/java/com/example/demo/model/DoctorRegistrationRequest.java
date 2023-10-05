@@ -7,14 +7,23 @@ public class DoctorRegistrationRequest {
 
 	private Doctor doctor;
 	private List<String> workingDays;
-	private LocalTime timeSlot;
+	private LocalTime startTime;
+	private LocalTime endTime;
 
-	public LocalTime getTimeSlot() {
-		return timeSlot;
+	public LocalTime getStartTime() {
+		return startTime;
 	}
 
-	public void setTimeSlot(LocalTime timeSlot) {
-		this.timeSlot = timeSlot;
+	public void setStartTime(LocalTime startTime) {
+		this.startTime = startTime;
+	}
+
+	public LocalTime getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(LocalTime endTime) {
+		this.endTime = endTime;
 	}
 
 	public Doctor getDoctor() {
@@ -38,11 +47,12 @@ public class DoctorRegistrationRequest {
 		// TODO Auto-generated constructor stub
 	}
 
-	public DoctorRegistrationRequest(Doctor doctor, List<String> workingDays, LocalTime timeSlot) {
+	public DoctorRegistrationRequest(Doctor doctor, List<String> workingDays, LocalTime startTime, LocalTime endTime) {
 		super();
 		this.doctor = doctor;
 		this.workingDays = workingDays;
-		this.timeSlot = timeSlot;
+		this.startTime = startTime;
+		this.endTime = endTime;
 	}
 
 }
